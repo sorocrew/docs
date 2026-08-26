@@ -1,4 +1,4 @@
-# SoroCrew Docs & Landing Page 📚
+# SoroCrew Docs & Landing Page
 
 ![SoroCrew Logo](./crew-logo-white.svg)
 
@@ -8,7 +8,7 @@ Built with React, Vite, TypeScript, and a high-contrast Neo-Brutalist Black-on-W
 
 ---
 
-## 🛠️ Development
+## Development
 
 ```bash
 # Clone the repository
@@ -27,6 +27,6 @@ npm run build
 
 ---
 
-## 📄 License
+## License
 
 MIT © [SoroCrew](https://github.com/sorocrew)
