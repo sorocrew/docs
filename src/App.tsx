@@ -75,10 +75,19 @@ export const App: React.FC = () => {
             </button>
 
             <a
+              href="https://t.me/sorocrew"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="neo-btn py-1.5 px-3 text-xs bg-blue-100 text-blue-900 border-black"
+            >
+              <span>Telegram</span>
+            </a>
+
+            <a
               href="https://github.com/sorocrew"
               target="_blank"
               rel="noopener noreferrer"
-              className="neo-btn ml-2 py-1.5 px-3 text-xs bg-yellow-300"
+              className="neo-btn ml-1 py-1.5 px-3 text-xs bg-yellow-300"
             >
               <Github className="w-4 h-4" />
               <span>GitHub</span>
@@ -273,6 +282,7 @@ console.log({ connected, publicKey, network });`}
           </div>
 
           <div className="flex items-center gap-4">
+            <a href="https://t.me/sorocrew" target="_blank" rel="noopener noreferrer" className="hover:underline text-blue-600">Telegram</a>
             <a href="https://github.com/sorocrew/studio" target="_blank" rel="noopener noreferrer" className="hover:underline">Studio</a>
             <a href="https://github.com/sorocrew/provider" target="_blank" rel="noopener noreferrer" className="hover:underline">Provider</a>
             <a href="https://github.com/sorocrew/quickstart" target="_blank" rel="noopener noreferrer" className="hover:underline">Quickstart</a>
