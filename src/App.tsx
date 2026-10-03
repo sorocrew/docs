@@ -120,22 +120,24 @@ export const App: React.FC = () => {
 
                 <div className="flex flex-wrap items-center gap-4 pt-4">
                   <a
-                    href="https://github.com/sorocrew/studio"
+                    href="https://crew-studio-six.vercel.app/"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="neo-btn-primary text-base py-3 px-6"
                   >
-                    <span>Get SoroCrew Studio</span>
+                    <span>Launch Studio Web App</span>
                     <ArrowRight className="w-5 h-5" />
                   </a>
 
-                  <button
-                    onClick={() => setActiveTab('provider')}
+                  <a
+                    href="https://github.com/sorocrew/studio"
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="neo-btn text-base py-3 px-6 bg-yellow-300"
                   >
-                    <BookOpen className="w-5 h-5" />
-                    <span>Read Docs</span>
-                  </button>
+                    <Github className="w-5 h-5" />
+                    <span>GitHub Repo</span>
+                  </a>
                 </div>
               </div>
             </div>

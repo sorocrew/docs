@@ -4,6 +4,9 @@
 
 > **Official Documentation & Landing Page for SoroCrew** — The Soroban dApp Developer Environment on Stellar.
 
+* **Live Documentation:** [https://crew-crew-fc59.vercel.app/](https://crew-crew-fc59.vercel.app/)
+* **Live SoroCrew Studio:** [https://crew-studio-six.vercel.app/](https://crew-studio-six.vercel.app/)
+
 Built with React, Vite, TypeScript, and a high-contrast Neo-Brutalist Black-on-White theme.
 
 ---
