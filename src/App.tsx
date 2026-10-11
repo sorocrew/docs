@@ -1,4 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+
+interface RpcNetworkHealth {
+  status: 'healthy' | 'checking' | 'degraded' | 'offline';
+  latestLedger?: number;
+  latencyMs?: number;
+  checkedAt?: string;
+}
 import { 
   Globe, 
   Layers, 
@@ -19,6 +26,71 @@ import {
 export const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'overview' | 'studio' | 'provider' | 'quickstart'>('overview');
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
+  const [rpcHealth, setRpcHealth] = useState<RpcNetworkHealth>({ status: 'checking' });
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const checkRpcStatus = async () => {
+      const startTime = Date.now();
+      try {
+        const response = await fetch('https://soroban-testnet.stellar.org', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            jsonrpc: '2.0',
+            id: 1,
+            method: 'getHealth'
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error('HTTP ' + response.status);
+        }
+
+        const data = await response.json();
+        const latency = Date.now() - startTime;
+        let ledgerSeq = data.result?.latestLedger;
+
+        if (!ledgerSeq) {
+          try {
+            const ledgerRes = await fetch('https://soroban-testnet.stellar.org', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ jsonrpc: '2.0', id: 2, method: 'getLatestLedger' })
+            });
+            const ledgerData = await ledgerRes.json();
+            ledgerSeq = ledgerData.result?.sequence;
+          } catch {
+            // Keep existing or undefined
+          }
+        }
+
+        if (isMounted) {
+          setRpcHealth({
+            status: data.result?.status === 'healthy' ? 'healthy' : 'degraded',
+            latestLedger: ledgerSeq,
+            latencyMs: latency,
+            checkedAt: new Date().toLocaleTimeString()
+          });
+        }
+      } catch {
+        if (isMounted) {
+          setRpcHealth({
+            status: 'offline',
+            checkedAt: new Date().toLocaleTimeString()
+          });
+        }
+      }
+    };
+
+    checkRpcStatus();
+    const timer = setInterval(checkRpcStatus, 30000);
+    return () => {
+      isMounted = false;
+      clearInterval(timer);
+    };
+  }, []);
 
   const copyCode = (code: string, id: string) => {
     navigator.clipboard.writeText(code);
@@ -37,6 +109,65 @@ export const App: React.FC = () => {
               CREW
             </div>
             <span className="font-['Black_Ops_One'] text-xl tracking-wider text-black hidden sm:inline">DOCS</span>
+
+            {/* Live Soroban RPC Network Status Indicator */}
+            <div 
+              className="relative group hidden sm:flex items-center gap-2 px-2.5 py-1 text-xs font-mono font-bold rounded-lg border-2 border-black shadow-[2px_2px_0px_0px_#000000] cursor-pointer transition-all hover:-translate-y-0.5"
+              style={{
+                backgroundColor:
+                  rpcHealth.status === 'healthy' ? '#DCFCE7' :
+                  rpcHealth.status === 'checking' ? '#FEF9C3' : '#FEE2E2'
+              }}
+              title={
+                rpcHealth.status === 'healthy'
+                  ? "Soroban Testnet RPC: Operational" + (rpcHealth.latestLedger ? " | Ledger #" + rpcHealth.latestLedger : "") + (rpcHealth.latencyMs ? " (" + rpcHealth.latencyMs + "ms)" : "")
+                  : rpcHealth.status === 'checking'
+                  ? "Pinging Soroban Testnet RPC..."
+                  : "Soroban Testnet RPC unreachable / degraded"
+              }
+            >
+              <span className="relative flex h-2 w-2">
+                {rpcHealth.status === 'healthy' && (
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                )}
+                <span 
+                  className={`relative inline-flex rounded-full h-2 w-2 ${
+                    rpcHealth.status === 'healthy' ? 'bg-emerald-600' :
+                    rpcHealth.status === 'checking' ? 'bg-yellow-500 animate-pulse' :
+                    'bg-red-600'
+                  }`}
+                />
+              </span>
+              <span className="text-[11px] font-extrabold text-black">
+                {rpcHealth.status === 'healthy' ? 'Testnet: Operational' :
+                 rpcHealth.status === 'checking' ? 'Testnet: Checking...' :
+                 'Testnet: Degraded'}
+              </span>
+
+              {/* Tooltip on hover */}
+              <div className="absolute top-full left-0 mt-2 hidden group-hover:flex flex-col gap-1 p-2.5 bg-slate-900 text-white text-[11px] font-mono rounded-lg border-2 border-black shadow-[3px_3px_0px_0px_#000] whitespace-nowrap z-50">
+                <div className="flex items-center gap-1.5 font-bold text-emerald-400">
+                  <Activity className="w-3.5 h-3.5" />
+                  <span>Soroban Testnet RPC Status</span>
+                </div>
+                <div className="text-slate-300">
+                  Endpoint: <span className="text-white">soroban-testnet.stellar.org</span>
+                </div>
+                <div className="text-slate-300">
+                  Status: <span className={rpcHealth.status === 'healthy' ? 'text-emerald-400 font-bold capitalize' : 'text-amber-400 font-bold capitalize'}>{rpcHealth.status}</span>
+                </div>
+                {rpcHealth.latestLedger && (
+                  <div className="text-slate-300">
+                    Latest Ledger: <span className="text-yellow-300 font-bold">#{rpcHealth.latestLedger.toLocaleString()}</span>
+                  </div>
+                )}
+                {rpcHealth.latencyMs !== undefined && (
+                  <div className="text-slate-400 text-[10px]">
+                    Latency: {rpcHealth.latencyMs}ms | Auto-refreshes every 30s
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
 
           {/* Navigation Links */}
